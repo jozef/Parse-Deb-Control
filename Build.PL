@@ -7,11 +7,27 @@ my $builder = Module::Build->new(
     license             => 'perl',
     dist_author         => 'Jozef Kutej <jkutej@cpan.org>',
     dist_version_from   => 'lib/Parse/Deb/Control.pm',
-    build_requires => {
-        'Test::More' => 0,
+    requires => {
+        'Class::Accessor::Fast' => 0,
+        'File::Slurp'           => 0,
+        'Storable'              => 0,
+        'List::MoreUtils'       => 0,
+        'IO::String'            => 0,
     },
-    add_to_cleanup      => [ 'Parse-Deb-Control-*' ],
+    build_requires => {
+        'Test::More'        => 0,
+        'Test::Differences' => 0,
+        'Test::Exception'   => 0,
+        'File::Spec'        => 0,
+    },
+    script_files => [
+        'script/deb-control-key-values',
+        'script/deb-control-prefix-perl',
+    ],
+    add_to_cleanup     => [ 'Parse-Deb-Control-*' ],
     create_makefile_pl => 'traditional',
+    create_readme      => 1,
+    sign               => 1,
 );
 
 $builder->create_build_script();
