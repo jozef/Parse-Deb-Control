@@ -85,7 +85,7 @@ sub content {
         if ($line =~ /^\s*$/) {
             $last_value = undef;
             push @structure, $line;
-            if ($last_para) {
+            if (defined $last_para) {
                 push @content, $last_para;
                 $last_para = undef;
             }
@@ -111,11 +111,17 @@ sub content {
         
         die 'unrecognized format "'.$line.'" (line '.$line_number.')';
     }
-    push @content, $last_para;
+    push @content, $last_para
+        if defined $last_para;
     
     $self->{'content'} = \@content;
     $self->structure(\@structure);
 
+    # for debugging
+    # use File::Slurp 'write_file';
+    # write_file('xxx1', $control_txt);
+    # write_file('xxx2', $self->control);
+    
     die 'control reconstruction failed, send your "control" file attached to bug report :)'
         if $control_txt ne $self->control;
     
@@ -128,19 +134,25 @@ sub control {
     my $control_txt = '';
     my @content     = @{dclone($self->{'content'})};
     my %cur_para    = %{shift @content};
+    
+    # loop through the control file structure
     foreach my $structure_key (@{$self->structure}) {
         if ($structure_key =~ /^\s*$/) {
             # loop throug new keys and add them
             foreach my $key (sort keys %cur_para) {
-                $control_txt .= $key.':'.$cur_para{$key};
+                $control_txt .= $key.':'.(delete $cur_para{$key});
             }
             
             # add the space
             $control_txt .= $structure_key;
             
-            # get next paragraph
-            %cur_para    = %{shift @content};
+            %cur_para = ();
+            next;
         }
+        
+        # get next paragraph if empty
+        %cur_para = %{shift @content}
+            if not %cur_para;
         
         my $value = delete $cur_para{$structure_key};
         $control_txt .= $structure_key.':'.$value
@@ -148,7 +160,7 @@ sub control {
     }
     # loop throug new keys and add them
     foreach my $key (sort keys %cur_para) {
-        $control_txt .= $key.':'.$cur_para{$key};
+        $control_txt .= $key.':'.(delete $cur_para{$key});
     }
     
     return $control_txt;
