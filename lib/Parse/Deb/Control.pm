@@ -6,7 +6,34 @@ Parse::Deb::Control - parse and manipulate F<debian/control> in a controlable wa
 
 =head1 SYNOPSIS
 
+Print out all "Package:" values lines
+
+    my $parser = Parse::Deb::Control->new($control_txt);
+    foreach my $entry ($parser->get_keys('Package')) {
+        print ${$entry->{'value'}}, "\n";
+    }
+
+Modify "Maintainer:"
+
+    my $mantainer = 'someone@new';
+    my $parser = Parse::Deb::Control->new($control_txt);
+	foreach my $src_pkg ($parser->get_keys(qw{ Maintainer })) {
+        ${$src_pkg->{'value'}} =~ s/^ (\s*) (\S.*) $/ $maintainer\n/xms;
+    }
+    print $parser->control;
+
 =head1 DESCRIPTION
+
+This modules helps to automate changes in F<debian/control> file. It
+tries hard to preserve the original structure so that diff on input and
+output can be made and it will be clear what was changed. There are 2 checks.
+First when original F<debian/control> file processed it is generated
+back and compared to the original. The program dies if those two doesn't
+match. After making changes and creating new file. The result is parsed
+again and the same check is applied to make sure the file will be still
+parseable.
+
+See also L<Parse::DebControl> for alternative.
 
 =cut
 
@@ -24,12 +51,13 @@ use IO::String;
 
 =head1 PROPERTIES
 
+    _control_src
+    structure
+
 =cut
 
 __PACKAGE__->mk_accessors(qw{
-    filename
     _control_src
-    content
     structure
 });
 
@@ -37,7 +65,8 @@ __PACKAGE__->mk_accessors(qw{
 
 =head2 new()
 
-Object constructor.
+Object constructor. Accepts filehandle, string or filename to get
+F<debian/control> from.
 
 =cut
 
@@ -67,6 +96,13 @@ sub new {
 
     return $self;
 }
+
+=head2 content()
+
+Returns content of the F<debian/control>. The return value is an array
+ref holding hashes representing control file paragraphs.
+
+=cut
 
 sub content {
     my $self = shift;
@@ -134,6 +170,14 @@ sub content {
     return \@content;
 }
 
+
+=head2 control
+
+Returns text representation of a F<debian/control> constructed from
+C<<$self->content>> and C<<$self->structure>>.
+
+=cut
+
 sub control {
     my $self = shift;
     
@@ -187,6 +231,22 @@ sub _control {
     
     return $control_txt;
 }
+
+=head2 get_keys
+
+Parameters are the requested keys from F<debian/control>. Returns array
+of key/values of matching keys. Ex.
+
+    {
+        'key'   => 'Package',
+        'value' => \"perl",
+        'para'  => { ... one item from $self->content array ... },
+    }
+
+Note that value is a pointer to scalar value so that it can be easyly
+modified if needed.
+
+=cut
 
 sub get_keys {
     my $self   = shift;
@@ -271,4 +331,4 @@ under the same terms as Perl itself.
 
 =cut
 
-1; # End of Parse::Deb::Control
+'and the show must go on';
