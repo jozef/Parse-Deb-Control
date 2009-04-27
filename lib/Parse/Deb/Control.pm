@@ -19,6 +19,8 @@ use base 'Class::Accessor::Fast';
 
 use File::Slurp qw(read_file write_file);
 use Storable 'dclone';
+use List::MoreUtils 'any';
+use IO::String;
 
 =head1 PROPERTIES
 
@@ -48,12 +50,16 @@ sub new {
         if not $src;
     
     # assume it's file handle if it can getline method
-    $self->_control_src($src)
-        if eval { $src->can('getline') };
+    if (eval { $src->can('getline') }) {
+        $self->_control_src($src);
+        return $self;
+    }
 
     # assume it's string if there are new lines
-    $self->_control_src(IO::String->new($src))
-        if ($src =~ m/\n/xms);
+    if ($src =~ m/\n/xms) {
+        $self->_control_src(IO::String->new($src));
+        return $self;
+    }
 
     # otherwise open file for reading
     open my $io, '<', $src or die 'failed to open "'.$src.'" - '.$!;
@@ -123,7 +129,7 @@ sub content {
     # write_file('xxx2', $self->control);
     
     die 'control reconstruction failed, send your "control" file attached to bug report :)'
-        if $control_txt ne $self->control;
+        if $control_txt ne $self->_control;
     
     return \@content;
 }
@@ -131,8 +137,24 @@ sub content {
 sub control {
     my $self = shift;
     
+    my $control_txt = $self->_control;
+    
+    # run through parser again to test if future parsing will be successful
+    eval {
+        my $parser = Parse::Deb::Control->new($control_txt)->content;
+    };
+    if ($@) {
+        die 'generating and parsing back failed ("'.$@.'"), this is probably a bug. attach your control file and manipulations you did to the bug report :)'
+    }
+    
+    return $control_txt;
+}
+
+sub _control {
+    my $self = shift;
+    
     my $control_txt = '';
-    my @content     = @{dclone($self->{'content'})};
+    my @content     = @{$self->content};
     my %cur_para    = %{shift @content};
     
     # loop through the control file structure
@@ -164,6 +186,28 @@ sub control {
     }
     
     return $control_txt;
+}
+
+sub get_keys {
+    my $self   = shift;
+    my @wanted = @_;
+    
+    my @content = @{$self->content};
+
+    my @wanted_keys;
+    foreach my $para (@content) {
+        foreach my $key (keys %{$para}) {
+            if (any { $_ eq $key } @wanted) {
+                push @wanted_keys, {
+                    'key'   => $key,
+                    'value' => \$para->{$key},
+                    'para'  => $para,
+                };
+            }
+        }
+    }
+    
+    return @wanted_keys;
 }
 
 1;
