@@ -63,8 +63,8 @@ sub main {
 		${$src_pkg->{'value'}} =~ s/^ (\s*) (\S+) (\s*) $/$1$prefix$2$3/xms;
 	}
 	# modify dependencies
-	foreach my $dependecies ($parser->get_keys(qw{ Build-Depends Build-Conflicts Pre-Depends Conflicts Replaces Provides Suggests })) {
-		${$dependecies->{'value'}} =~ s/\b (lib \S+ perl | perl | perl-modules | perl5-base | libperl5.8) \b/mms-$1/xmsg;
+	foreach my $dependecies ($parser->get_keys(qw{ Build-Depends Build-Depends-Indep Build-Conflicts Pre-Depends Conflicts Replaces Provides Suggests })) {
+		${$dependecies->{'value'}} =~ s/\b (lib \S+ perl | cdbs | debhelper | perl | perl-base | perl-modules | perl5-base | libperl5.8 | libperl5.10) \b/$prefix$1/xmsg;
 	}
 	
 	# add text to description
