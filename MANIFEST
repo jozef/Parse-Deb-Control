@@ -1,0 +1,15 @@
+Build.PL
+Changes
+examples/deb-control-key-values
+examples/deb-control-prefix-perl
+lib/Parse/Deb/Control.pm
+Makefile.PL
+MANIFEST			This list of files
+META.yml
+t/01_Parse-Deb-Control.t
+t/control/control-perl
+t/control/control-perl-simple
+t/control/control-perl-simple-add-remove
+t/control/control-perl-simple-step1
+t/control/control-perl-simple-step2
+t/control/control-perl-simple-step3
