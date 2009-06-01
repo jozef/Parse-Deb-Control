@@ -40,7 +40,7 @@ See also L<Parse::DebControl> for alternative.
 use warnings;
 use strict;
 
-our $VERSION = '0.02_01';
+our $VERSION = '0.02';
 
 use base 'Class::Accessor::Fast';
 
