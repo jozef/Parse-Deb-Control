@@ -36,7 +36,7 @@ sub main {
     my $maintainer = 'repackaging@with-prefix';
     my $uploaders;
     my $description;
-    my $to_prefix = 'lib \S+ perl | perl | perl-base | perl-modules | perl5 | perl5-base | libperl5.10 | libperl-dev | libapache2-mod-perl2 | libapreq2';
+    my $to_prefix = 'lib \S+ perl | perl | perl-base | perl-modules | perl5 | perl5-base | libperl5.10 | libperl-dev | libapache2-mod-perl2 | libapreq2 | perl-doc | podlators-perl | cdbs | debhelper';
     GetOptions(
         'help|h'          => \$help,
         'prefix|p=s'      => \$prefix,

@@ -18,14 +18,14 @@ echo build-pkg $PKG
 [ -f /var/cache/pbuilder/result/${PKG}_*deb ] && exit 0
 
 
-ORIGPKG=`perl -le 'print substr($ARGV[0], 5);' $PKG` # remove opt-
+ORIGPKG=`perl -le 'print substr($ARGV[0], 4);' $PKG` # remove opl-
 SRCPKG=`apt-cache showsrc $ORIGPKG | perl -lane 'next if not m/^Package:\s+(.+)$/; print $1;' | tail -1`
 if [ "$SRCPKG" = "" ]; then
     SRCPKG=$ORIGPKG
 fi
 
 # build build dependencies
-show-source-dependecies --also-depends --prefix=opt- "opt-$SRCPKG" | \
+show-source-dependecies --also-depends --prefix=opl- "opl-$SRCPKG" | \
 while read DPKG; do
     echo DPKG $DPKG
     [ -f /var/cache/pbuilder/result/$DPKG*deb ] || build-pkg "$DPKG"
@@ -33,12 +33,15 @@ while read DPKG; do
 done
 [ "$?" == "0" ] || exit 1
 
-cd opt-$SRCPKG-*
+cd opl-$SRCPKG-*
 time pdebuild
 
 [ -f /var/cache/pbuilder/result/${PKG}_*deb ] || exit 1
 
 # rebuild our local repo
 OLD_PWD=$PWD
-cd /var/cache/pbuilder/result && dpkg-scanpackages . /dev/null > Packages && sudo apt-get update
+cd /var/cache/pbuilder/result \
+    && dpkg-scanpackages . /dev/null > Packages \
+    && dpkg-scansources . > Sources \
+    && sudo apt-get update
 cd $OLD_PWD
