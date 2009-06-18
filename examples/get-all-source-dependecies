@@ -78,7 +78,7 @@ sub main {
 
 sub pkg_folder {
     my $pkg = shift;
-    my ($source_pkg) = map { chomp; substr($_,8) } grep { m/^Source: / } `apt-cache show "$pkg" 2> /dev/null`;
+    my ($source_pkg) = map { $1 if m/^Source: ([\w]+)\s/ } grep { m/^Source: / } `apt-cache show "$pkg" 2> /dev/null`;
     $source_pkg ||= $pkg;
     my ($folder) = File::Find::Rule
         ->directory
