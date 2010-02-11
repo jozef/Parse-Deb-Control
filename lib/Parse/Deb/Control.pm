@@ -17,7 +17,7 @@ Modify "Maintainer:"
 
     my $mantainer = 'someone@new';
     my $parser = Parse::Deb::Control->new($control_txt);
-	foreach my $src_pkg ($parser->get_keys(qw{ Maintainer })) {
+    foreach my $src_pkg ($parser->get_keys(qw{ Maintainer })) {
         ${$src_pkg->{'value'}} =~ s/^ (\s*) (\S.*) $/ $maintainer\n/xms;
     }
     print $parser->control;
@@ -44,10 +44,9 @@ our $VERSION = '0.03';
 
 use base 'Class::Accessor::Fast';
 
-use File::Slurp qw(read_file write_file);
 use Storable 'dclone';
 use List::MoreUtils 'any';
-use IO::String;
+use IO::Any;
 
 =head1 PROPERTIES
 
@@ -65,34 +64,17 @@ __PACKAGE__->mk_accessors(qw{
 
 =head2 new()
 
-Object constructor. Accepts filehandle, string or filename to get
+Object constructor. Accepts anythign L<IO::Any>->read() does to get
 F<debian/control> from.
 
 =cut
 
 sub new {
     my $class = shift;
-    my $src   = shift;
+    my $what  = shift || '';
     my $self  = $class->SUPER::new({});
     
-    return $self
-        if not $src;
-    
-    # assume it's file handle if it can getline method
-    if (eval { $src->can('getline') }) {
-        $self->_control_src($src);
-        return $self;
-    }
-
-    # assume it's string if there are new lines
-    if ($src =~ m/\n/xms) {
-        $self->_control_src(IO::String->new($src));
-        return $self;
-    }
-
-    # otherwise open file for reading
-    open my $io, '<', $src or die 'failed to open "'.$src.'" - '.$!;
-    $self->_control_src($io);
+    $self->_control_src(IO::Any->read($what));
 
     return $self;
 }
@@ -199,6 +181,9 @@ sub _control {
     
     my $control_txt = '';
     my @content     = @{$self->content};
+    return $control_txt
+        if not @content;
+    
     my %cur_para    = %{shift @content};
     
     # loop through the control file structure

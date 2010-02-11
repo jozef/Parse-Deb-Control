@@ -1,5 +1,9 @@
 Revision history for Parse-Deb-Control
 
+0.03    11 Feb 2010
+    * use IO::Any instead of custom guessing. solves some problems with
+      for example empty files and is more universal
+
 0.0x    see http://github.com/jozef/Parse-Deb-Control/commits/master/
 
 0.01    Date/time

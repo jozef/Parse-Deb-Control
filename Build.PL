@@ -9,16 +9,16 @@ my $builder = Module::Build->new(
     dist_version_from   => 'lib/Parse/Deb/Control.pm',
     requires => {
         'Class::Accessor::Fast' => 0,
-        'File::Slurp'           => 0,
         'Storable'              => 0,
         'List::MoreUtils'       => 0,
-        'IO::String'            => 0,
+        'IO::Any'               => 0.04,
     },
     build_requires => {
         'Test::More'        => 0,
         'Test::Differences' => 0,
         'Test::Exception'   => 0,
         'File::Spec'        => 0,
+        'File::Slurp'       => 0,
     },
     script_files => [
         'script/deb-control-key-values',
