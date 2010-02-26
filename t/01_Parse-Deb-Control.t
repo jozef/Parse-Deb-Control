@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 #use Test::More 'no_plan';
-use Test::More tests => 15;
+use Test::More tests => 17;
 use Test::Differences;
 use Test::Exception;
 
@@ -140,6 +140,20 @@ sub main {
 		scalar read_file(File::Spec->catfile($Bin, 'control', 'control-perl-simple-add-remove')),
 		'check adding & removing keys',
 	);
+
+	# comments inside control files
+	my $parser4 = Parse::Deb::Control->new(File::Spec->catfile($Bin, 'control', 'control-perl-simple-comment'));
+	lives_ok {
+		$parser4->control
+	} 'parse the control file with comments';
+	SKIP: {
+		skip 'parsing failed not running further tests', 1;
+		is(
+			$parser4->control,
+			scalar read_file(File::Spec->catfile($Bin, 'control', 'control-perl-simple-comment')),
+			'generate the control file with comments',
+		);
+	}
 
 	return 0;
 }

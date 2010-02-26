@@ -40,13 +40,14 @@ See also L<Parse::DebControl> for alternative.
 use warnings;
 use strict;
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 use base 'Class::Accessor::Fast';
 
 use Storable 'dclone';
 use List::MoreUtils 'any';
 use IO::Any;
+use Carp;
 
 =head1 PROPERTIES
 
@@ -105,7 +106,7 @@ sub content {
         $line_number++;
         $control_txt .= $line;
         
-        # if the line is epmty it's the end of control paragraph
+        # if the line is empty it's the end of control paragraph
         if ($line =~ /^\s*$/) {
             $last_value = undef;
             push @structure, $line;
@@ -124,6 +125,12 @@ sub content {
             next;
         }
         
+        # line starting with # are comments
+        if ($line =~ /^#/) {
+            push @structure, $line;
+            next;
+        }
+        
         # other should be key/value lines
         if ($line =~ /^([^:]+):(.*$)/xms) {
             my ($key, $value) = ($1, $2);
@@ -133,7 +140,7 @@ sub content {
             next;
         }
         
-        die 'unrecognized format "'.$line.'" (line '.$line_number.')';
+        croak 'unrecognized format "'.$line.'" (line '.$line_number.')';
     }
     push @content, $last_para
         if defined $last_para;
@@ -146,7 +153,7 @@ sub content {
     # write_file('xxx1', $control_txt);
     # write_file('xxx2', $self->control);
     
-    die 'control reconstruction failed, send your "control" file attached to bug report :)'
+    croak 'control reconstruction failed, send your "control" file attached to bug report :-)'
         if $control_txt ne $self->_control;
     
     return \@content;
@@ -188,6 +195,12 @@ sub _control {
     
     # loop through the control file structure
     foreach my $structure_key (@{$self->structure}) {
+        # just add comment lines
+        if ($structure_key =~ /^#/) {
+            $control_txt .= $structure_key;
+            next;
+        }
+        
         if ($structure_key =~ /^\s*$/) {
             # loop throug new keys and add them
             foreach my $key (sort keys %cur_para) {
