@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 #use Test::More 'no_plan';
-use Test::More tests => 17;
+use Test::More tests => 18;
 use Test::Differences;
 use Test::Exception;
 
@@ -87,6 +87,16 @@ sub main {
 			}
 		],
 		'test get_keys() method return values'
+	);
+
+	my @interresting_para = $parser2->get_paras(qw{ Source Package });
+	eq_or_diff(
+		\@interresting_para,
+		[
+			(@{$parser2->content})[0],
+			(@{$parser2->content})[1],
+		],
+		'test get_paras() method return values'
 	);
 	
 	# modify Source and Package name

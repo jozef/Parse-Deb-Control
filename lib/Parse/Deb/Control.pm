@@ -268,6 +268,23 @@ sub get_keys {
     return @wanted_keys;
 }
 
+=head2 get_paras
+
+Returns a paragraphs that has key(s) passed as argument.
+
+=cut
+
+sub get_paras {
+    my $self = shift;
+    my @wanted = @_;
+    
+    my @keys = $self->get_keys(@wanted);
+    return
+        map { $_->{'para'} }
+        @keys
+    ;
+}
+
 1;
 
 
