@@ -8,7 +8,18 @@ Parse::Deb::Control - parse and manipulate F<debian/control> in a controlable wa
 
 Print out all "Package:" values lines
 
+    use Parse::Deb::Control;
+
     my $parser = Parse::Deb::Control->new($control_txt);
+    my $parser = Parse::Deb::Control->new(['path', 'to', 'debian', 'control']);
+    my $parser = Parse::Deb::Control->new($fh);
+    
+    foreach my $para ($parser->get_paras('Package')) {
+        print $para->{'Package'}, "\n";
+    }
+
+or
+
     foreach my $entry ($parser->get_keys('Package')) {
         print ${$entry->{'value'}}, "\n";
     }
@@ -16,10 +27,21 @@ Print out all "Package:" values lines
 Modify "Maintainer:"
 
     my $mantainer = 'someone@new';
+
+    my $parser = Parse::Deb::Control->new($control_txt);
+    foreach my $para ($parser->get_paras(qw{ Maintainer })) {
+        $para->{'Maintainer'} =~ s/^ (\s*) (\S.*) $/ $maintainer\n/xms;
+    }
+
+or
+    
     my $parser = Parse::Deb::Control->new($control_txt);
     foreach my $src_pkg ($parser->get_keys(qw{ Maintainer })) {
         ${$src_pkg->{'value'}} =~ s/^ (\s*) (\S.*) $/ $maintainer\n/xms;
     }
+
+and
+
     print $parser->control;
 
 =head1 DESCRIPTION
