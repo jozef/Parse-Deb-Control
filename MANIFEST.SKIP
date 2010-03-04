@@ -32,3 +32,4 @@
 .*\.tar\.gz
 ^Parse-Deb-Control-
 
+^MYMETA.yml$

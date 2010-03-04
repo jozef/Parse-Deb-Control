@@ -15,8 +15,9 @@ deb-control-prefix-perl - prefix all perl packages with custom prefix in F<debia
 =head1 DESCRIPTION
 
 Requested prefix is added to all C<Source>, C<Package> lines and to all
-perl dependencies in C<Build-Depends>, C<Build-Conflicts>, C<Pre-Depends>,
-C<Conflicts>, C<Replaces>, C<Provides>, C<Suggests>.
+perl dependencies in C<Build-Depends>, C<Build-Depends-Indep>, C<Build-Conflicts>,
+C<Pre-Depends>, C<Depends>, C<Conflicts>, C<Replaces>, C<Provides>, C<Suggests>,
+C<Recommends>.
 
 =cut
 
@@ -70,6 +71,10 @@ sub main {
 	}
 	# modify dependencies
 	foreach my $dependecies ($parser->get_keys(qw{ Build-Depends Build-Depends-Indep Build-Conflicts Pre-Depends Depends Conflicts Replaces Provides Suggests Recommends })) {
+		# remove the prefix if already added
+		${$dependecies->{'value'}} =~ s/(\s|,|:) $prefix/$1/xmsg;
+		
+		# add prefix
 		${$dependecies->{'value'}} =~ s/(\s|,|:) ($to_prefix) (\s|,)/$1$prefix$2$3/xmsg;
 	}
 	

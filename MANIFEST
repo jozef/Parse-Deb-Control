@@ -16,6 +16,7 @@ t/01_Parse-Deb-Control.t
 t/control/control-perl
 t/control/control-perl-simple
 t/control/control-perl-simple-add-remove
+t/control/control-perl-simple-comment
 t/control/control-perl-simple-step1
 t/control/control-perl-simple-step2
 t/control/control-perl-simple-step3

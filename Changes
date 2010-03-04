@@ -1,5 +1,8 @@
 Revision history for Parse-Deb-Control
 
+0.05     ?
+    * deb-control-prefix-perl will no longer double prefix
+
 0.04     1 Mar 2010
     * ->get_paras method added
     * allow comments inside control files
